@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【重要】在庫切れ商品のご案内</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            border-bottom: 2px solid #ff9900;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .info-section {
+            background-color: #f9f9f9;
+            border-left: 4px solid #ff9900;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .business-update {
+            background-color: #f0f8ff;
+            border-left: 4px solid #4682b4;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .category-section {
+            background-color: #f9f9f9;
+            border-left: 4px solid #ff9900;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .smartphones-section {
+            background-color: #fff8f8;
+            border-left: 4px solid #e74c3c;
+        }
+        .macbooks-section {
+            background-color: #f8f8ff;
+            border-left: 4px solid #3498db;
+        }
+        .tablets-section {
+            background-color: #f8fff8;
+            border-left: 4px solid #2ecc71;
+        }
+        .category-header {
+            margin-top: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .info-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .info-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            min-width: 150px;
+        }
+        .value {
+            display: inline-block;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666666;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+        .highlight {
+            color: #cc0000;
+            font-weight: bold;
+        }
+        .notice {
+            background-color: #fff8f0;
+            border: 1px solid #ff9900;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .product-table th {
+            background-color: #f0f0f0;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+        .product-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .product-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .product-table tr:hover {
+            background-color: #f0f0f0;
+        }
+        .rank-badge {
+            display: inline-block;
+            background-color: #ff9900;
+            color: white;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .subcat-rank-badge {
+            display: inline-block;
+            background-color: #4682b4;
+            color: white;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .no-items {
+            font-style: italic;
+            color: #888;
+            text-align: center;
+            padding: 15px;
+        }
+        .subcategory-title {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            color: #555;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+        }
+        @media only screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .label {
+                display: block;
+                margin-bottom: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+         <h4><?= sellerName ?> 様</h4>
+    </div>
+    
+    <div class="business-update">
+        <?= businessUpdate ?>
+    </div>
+    
+    <div class="info-section">
+        <h4>在庫切れ商品のご案内:</h4>
+        <p>過去7日間で在庫がなくカートが空いている傾向にある商品を記載いたしますので、在庫がございましたらぜひご出品いただけますと幸いです。よろしくお願いいたします。</p>
+    </div>
+    
+    <? 
+    // Group products by subcategory for proper organization
+    const productsBySubcategory = {};
+    
+    // Process all products and organize by subcategory
+    for (let i = 0; i < products.length; i++) {
+        const product = products[i];
+        const subcategory = product.category || '未分類';
+        
+        if (!productsBySubcategory[subcategory]) {
+            productsBySubcategory[subcategory] = [];
+        }
+        
+        productsBySubcategory[subcategory].push(product);
+    }
+    
+    // Sort products within each subcategory by rank
+    for (const subcategory in productsBySubcategory) {
+        productsBySubcategory[subcategory].sort((a, b) => {
+            return (a.subcategoryRank || 999) - (b.subcategoryRank || 999);
+        });
+    }
+    
+    // Group subcategories by main category
+    const categories = {
+        'スマートフォン': [],
+        'タブレット': [],
+        'MacBook': [],
+        'その他': []
+    };
+    
+    // Assign subcategories to main categories based on name
+    for (const subcategory in productsBySubcategory) {
+        const subcatLower = subcategory.toLowerCase();
+        if (subcatLower.includes('iphone') || 
+            subcatLower.includes('phone') || 
+            subcatLower.includes('galaxy') || 
+            subcatLower.includes('smartphone')) {
+            
+            categories['スマートフォン'].push(subcategory);
+        }
+        else if (subcatLower.includes('ipad') || 
+                subcatLower.includes('tablet')) {
+            
+            categories['タブレット'].push(subcategory);
+        }
+        else if (subcatLower.includes('macbook') || 
+                subcatLower.includes('mac ')) {
+            
+            categories['MacBook'].push(subcategory);
+        }
+        else {
+            categories['その他'].push(subcategory);
+        }
+    }
+    
+    // Function to render a product table
+    function renderProductTable(products) {
+    ?>
+    <table class="product-table">
+        <thead>
+            <tr>
+                <th>ランク</th>
+                <th>商品名</th>
+                <th>グレード</th>
+            </tr>
+        </thead>
+        <tbody>
+            <? for (let i = 0; i < products.length; i++) { ?>
+            <tr>
+                <td><span class="subcat-rank-badge">#<?= products[i].subcategoryRank || (i+1) ?></span></td>
+                <td><?= products[i].name ?></td>
+                <td><?= products[i].grade ?></td>
+            </tr>
+            <? } ?>
+        </tbody>
+    </table>
+    <? } ?>
+    
+    <? 
+    // Render all categories and their subcategories
+    function renderCategory(categoryName, subcategoryList, cssClass) {
+        if (subcategoryList.length === 0) return;
+    ?>
+    <div class="category-section <?= cssClass ?>">
+        <h4 class="category-header"><?= categoryName ?></h4>
+        
+        <? for (const subcategory of subcategoryList) { 
+            const subProducts = productsBySubcategory[subcategory];
+            if (!subProducts || subProducts.length === 0) continue;
+        ?>
+            <div class="subcategory-title"><?= subcategory ?></div>
+            <? renderProductTable(subProducts); ?>
+        <? } ?>
+    </div>
+    <? } ?>
+    
+    <? renderCategory('スマートフォン (iPhone & Android)', categories['スマートフォン'], 'smartphones-section'); ?>
+    <? renderCategory('タブレット (iPad & Android)', categories['タブレット'], 'tablets-section'); ?>
+    <? renderCategory('MacBook', categories['MacBook'], 'macbooks-section'); ?>
+    <? renderCategory('その他の商品', categories['その他'], ''); ?>
+    
+    
+    <p>在庫管理についてご質問がございましたら、Back Market セラーサポートまでお気軽にお問い合わせください。</p>
+    
+    <div class="footer">
+        <p>このメールは自動送信されています。このメールには直接返信しないでください。</p>
+        <p>ご確認いただきありがとうございます。</p>
+        <h5>敬具<br>Back Market サポートチーム</h5>
+    </div>
+</body>
+</html>
